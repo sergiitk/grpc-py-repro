@@ -33,7 +33,7 @@ async def send_requests(
     logging.info(f"sending from {id}")
     for i in range(num):
         resp = await stub.SayHello(helloworld_pb2.HelloRequest(name=f"you {i}"))
-        if i % 30 == 0:
+        if i % 25 == 0:
             logging.info(f"#{id} Greeter client received: " + resp.message)
 
 
@@ -42,12 +42,15 @@ async def run() -> None:
     rmem_default = subprocess.check_output(["sysctl", "net.core.rmem_default"])
     rmem_default = rmem_default.decode().strip()
     assert rmem_default == "net.core.rmem_default = 8192", f"{rmem_default=}"
+    wmem_default = subprocess.check_output(["sysctl", "net.core.wmem_default"])
+    wmem_default = wmem_default.decode().strip()
+    assert wmem_default == "net.core.wmem_default = 8192", f"{wmem_default=}"
     logging.info("sysctl LGTM")
 
     async with grpc.aio.insecure_channel("localhost:50051") as channel:
         stub = helloworld_pb2_grpc.GreeterStub(channel)
         tasks = []
-        for i in range(10):
+        for i in range(25):
             tasks.append(send_requests(stub, i))
 
         logging.info("sending requests")

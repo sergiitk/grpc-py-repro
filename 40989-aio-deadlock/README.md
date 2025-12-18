@@ -1,6 +1,28 @@
 # Repro for https://github.com/grpc/grpc/pull/40989
 
+Hang reproduced
+
+```
+$ ss -xpnm state connected | grep 137222
+u_str ESTAB 0      0       * 493276   * 493275 users:(("python3",pid=137222,fd=5))  skmem:(r0,rb8192,t0,tb8192,f0,w0,o0,bl0,d0)
+u_str ESTAB 0      10496   * 490405   * 490404 users:(("python3",pid=137222,fd=9))  skmem:(r0,rb8192,t10496,tb8192,f0,w0,o0,bl0,d0)
+u_str ESTAB 8123   0       * 490404   * 490405 users:(("python3",pid=137222,fd=8))  skmem:(r0,rb8192,t0,tb8192,f0,w0,o0,bl0,d0)
+u_str ESTAB 0      0       * 493275   * 493276 users:(("python3",pid=137222,fd=4))  skmem:(r0,rb8192,t0,tb8192,f0,w0,o0,bl0,d0)
+```
+
+```
+$ sudo cat /proc/137222/task/137222/stack
+[<0>] futex_do_wait+0x38/0x70
+[<0>] __futex_wait+0x91/0x100
+[<0>] futex_wait+0x78/0x120
+[<0>] do_futex+0xcb/0x190
+[<0>] __x64_sys_futex+0x126/0x1e0
+[<0>] do_syscall_64+0x84/0x320
+[<0>] entry_SYSCALL_64_after_hwframe+0x76/0x7e
+```
+
 Client log with with `net.core.rmem_default` set to 8192:
+
 ```sh
 $ python client.py
 I1217 23:36:46.803 139785671926016 client.py:39] Verifying sysctl
