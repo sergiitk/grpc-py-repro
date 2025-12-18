@@ -1,3 +1,8 @@
+# Repro for https://github.com/grpc/grpc/pull/40989
+
+Client log:
+
+```sh
 $ python client.py
 I1217 23:07:36.708 140057533591808 client.py:39] Verifying sysctl
 I1217 23:07:36.712 140057533591808 client.py:46] sysctl LGTM
@@ -53,3 +58,4 @@ I1217 23:08:39.051 140057533591808 client.py:35] #2 Greeter client received: Hel
 I1217 23:08:39.120 140057533591808 client.py:35] #8 Greeter client received: Hello, you 90!
 I1217 23:08:39.155 140057533591808 client.py:35] #0 Greeter client received: Hello, you 90!
 I1217 23:08:45.335 140057533591808 client.py:56] done sending requests
+```
