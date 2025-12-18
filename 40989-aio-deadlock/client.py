@@ -28,7 +28,7 @@ import helloworld_pb2_grpc
 
 
 async def send_requests(
-    stub: helloworld_pb2_grpc.GreeterStub, id: int, num: int = 100
+    stub: helloworld_pb2_grpc.GreeterStub, id: int, num: int = 50
 ):
     logging.info(f"sending from {id}")
     for i in range(num):

@@ -3,20 +3,24 @@
 Hang reproduced
 
 ```
-$ ss -xpnm state connected | grep 137222
-u_str ESTAB 0      0       * 493276   * 493275 users:(("python3",pid=137222,fd=5))  skmem:(r0,rb8192,t0,tb8192,f0,w0,o0,bl0,d0)
-u_str ESTAB 0      10496   * 490405   * 490404 users:(("python3",pid=137222,fd=9))  skmem:(r0,rb8192,t10496,tb8192,f0,w0,o0,bl0,d0)
-u_str ESTAB 8123   0       * 490404   * 490405 users:(("python3",pid=137222,fd=8))  skmem:(r0,rb8192,t0,tb8192,f0,w0,o0,bl0,d0)
-u_str ESTAB 0      0       * 493275   * 493276 users:(("python3",pid=137222,fd=4))  skmem:(r0,rb8192,t0,tb8192,f0,w0,o0,bl0,d0)
+$ ss -xpnm state connected | grep 139574
+u_str ESTAB 0      0      * 516168  * 516167 users:(("python3",pid=139574,fd=5))  skmem:(r0,rb8192,t0,tb8192,f0,w0,o0,bl0,d0)
+u_str ESTAB 0      11264  * 503168  * 503167 users:(("python3",pid=139574,fd=9))  skmem:(r0,rb8192,t11264,tb8192,f0,w0,o0,bl0,d0)
+u_str ESTAB 8188   0      * 503167  * 503168 users:(("python3",pid=139574,fd=8))  skmem:(r0,rb8192,t0,tb8192,f0,w0,o0,bl0,d0)
+u_str ESTAB 0      0      * 516167  * 516168 users:(("python3",pid=139574,fd=4))  skmem:(r0,rb8192,t0,tb8192,f0,w0,o0,bl0,d0)
 ```
 
 ```
-$ sudo cat /proc/137222/task/137222/stack
-[<0>] futex_do_wait+0x38/0x70
-[<0>] __futex_wait+0x91/0x100
-[<0>] futex_wait+0x78/0x120
-[<0>] do_futex+0xcb/0x190
-[<0>] __x64_sys_futex+0x126/0x1e0
+sudo cat /proc/139574/task/139578/stack
+[<0>] sock_alloc_send_pskb+0x168/0x240
+[<0>] unix_stream_sendmsg+0x167/0x6a0
+[<0>] bpf_trampoline_6442564013+0xc1/0x16b
+[<0>] unix_stream_sendmsg+0x9/0x6a0
+[<0>] sock_write_iter+0x18e/0x1a0
+[<0>] vfs_write+0x3b4/0x450
+[<0>] ksys_write+0xbe/0xe0
+[<0>] bpf_trampoline_6442502961+0x71/0x11b
+[<0>] __x64_sys_write+0x9/0x20
 [<0>] do_syscall_64+0x84/0x320
 [<0>] entry_SYSCALL_64_after_hwframe+0x76/0x7e
 ```
