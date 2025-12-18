@@ -1,6 +1,65 @@
 # Repro for https://github.com/grpc/grpc/pull/40989
 
-Client log:
+Client log with with `net.core.rmem_default` set to 8192:
+```sh
+$ python client.py
+I1217 23:36:46.803 139785671926016 client.py:39] Verifying sysctl
+I1217 23:36:46.805 139785671926016 client.py:43] sysctl LGTM
+I1217 23:36:46.809 139785671926016 client.py:51] sending requests
+I1217 23:36:46.809 139785671926016 client.py:31] sending from 0
+I1217 23:36:46.809 139785671926016 client.py:31] sending from 1
+I1217 23:36:46.809 139785671926016 client.py:31] sending from 2
+I1217 23:36:46.809 139785671926016 client.py:31] sending from 3
+I1217 23:36:46.809 139785671926016 client.py:31] sending from 4
+I1217 23:36:46.809 139785671926016 client.py:31] sending from 5
+I1217 23:36:46.809 139785671926016 client.py:31] sending from 6
+I1217 23:36:46.809 139785671926016 client.py:31] sending from 7
+I1217 23:36:46.809 139785671926016 client.py:31] sending from 8
+I1217 23:36:46.810 139785671926016 client.py:31] sending from 9
+I1217 23:36:46.815 139785671926016 client.py:35] #0 Greeter client received: Hello, you 0!
+I1217 23:36:46.815 139785671926016 client.py:35] #8 Greeter client received: Hello, you 0!
+I1217 23:36:46.816 139785671926016 client.py:35] #2 Greeter client received: Hello, you 0!
+I1217 23:36:46.816 139785671926016 client.py:35] #5 Greeter client received: Hello, you 0!
+I1217 23:36:46.816 139785671926016 client.py:35] #7 Greeter client received: Hello, you 0!
+I1217 23:36:46.817 139785671926016 client.py:35] #3 Greeter client received: Hello, you 0!
+I1217 23:36:46.817 139785671926016 client.py:35] #1 Greeter client received: Hello, you 0!
+I1217 23:36:46.817 139785671926016 client.py:35] #9 Greeter client received: Hello, you 0!
+I1217 23:36:46.817 139785671926016 client.py:35] #6 Greeter client received: Hello, you 0!
+I1217 23:36:46.817 139785671926016 client.py:35] #4 Greeter client received: Hello, you 0!
+I1217 23:37:07.144 139785671926016 client.py:35] #8 Greeter client received: Hello, you 30!
+I1217 23:37:07.145 139785671926016 client.py:35] #0 Greeter client received: Hello, you 30!
+I1217 23:37:07.731 139785671926016 client.py:35] #2 Greeter client received: Hello, you 30!
+I1217 23:37:07.731 139785671926016 client.py:35] #5 Greeter client received: Hello, you 30!
+I1217 23:37:07.732 139785671926016 client.py:35] #7 Greeter client received: Hello, you 30!
+I1217 23:37:07.732 139785671926016 client.py:35] #3 Greeter client received: Hello, you 30!
+I1217 23:37:07.732 139785671926016 client.py:35] #1 Greeter client received: Hello, you 30!
+I1217 23:37:08.321 139785671926016 client.py:35] #9 Greeter client received: Hello, you 30!
+I1217 23:37:08.321 139785671926016 client.py:35] #6 Greeter client received: Hello, you 30!
+I1217 23:37:08.321 139785671926016 client.py:35] #4 Greeter client received: Hello, you 30!
+I1217 23:37:27.940 139785671926016 client.py:35] #8 Greeter client received: Hello, you 60!
+I1217 23:37:28.544 139785671926016 client.py:35] #0 Greeter client received: Hello, you 60!
+I1217 23:37:28.544 139785671926016 client.py:35] #2 Greeter client received: Hello, you 60!
+I1217 23:37:28.544 139785671926016 client.py:35] #5 Greeter client received: Hello, you 60!
+I1217 23:37:28.544 139785671926016 client.py:35] #6 Greeter client received: Hello, you 60!
+I1217 23:37:29.139 139785671926016 client.py:35] #7 Greeter client received: Hello, you 60!
+I1217 23:37:29.139 139785671926016 client.py:35] #3 Greeter client received: Hello, you 60!
+I1217 23:37:29.140 139785671926016 client.py:35] #1 Greeter client received: Hello, you 60!
+I1217 23:37:29.140 139785671926016 client.py:35] #9 Greeter client received: Hello, you 60!
+I1217 23:37:29.140 139785671926016 client.py:35] #4 Greeter client received: Hello, you 60!
+I1217 23:37:48.736 139785671926016 client.py:35] #8 Greeter client received: Hello, you 90!
+I1217 23:37:49.325 139785671926016 client.py:35] #0 Greeter client received: Hello, you 90!
+I1217 23:37:49.325 139785671926016 client.py:35] #2 Greeter client received: Hello, you 90!
+I1217 23:37:49.325 139785671926016 client.py:35] #5 Greeter client received: Hello, you 90!
+I1217 23:37:49.899 139785671926016 client.py:35] #6 Greeter client received: Hello, you 90!
+I1217 23:37:49.899 139785671926016 client.py:35] #7 Greeter client received: Hello, you 90!
+I1217 23:37:49.899 139785671926016 client.py:35] #3 Greeter client received: Hello, you 90!
+I1217 23:37:49.899 139785671926016 client.py:35] #1 Greeter client received: Hello, you 90!
+I1217 23:37:49.899 139785671926016 client.py:35] #9 Greeter client received: Hello, you 90!
+I1217 23:37:49.900 139785671926016 client.py:35] #4 Greeter client received: Hello, you 90!
+I1217 23:37:56.420 139785671926016 client.py:53] done sending requests
+```
+
+Client log with both `net.core.rmem_default` and `net.core.wmem_default` set to 8192:
 
 ```sh
 $ python client.py
