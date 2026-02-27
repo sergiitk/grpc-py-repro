@@ -9,13 +9,13 @@
 ### debugging
 * https://github.com/grpc/grpc/blob/master/doc/trace_flags.md
 
-## grpcio==1.78.0 fork off, initial call
+## grpcio==1.78.1 fork off, initial call
 
 **Result: WAI**
 
 ```log
 $ TEST_INITIAL_CALL=1 GRPC_ENABLE_FORK_SUPPORT=0 GRPC_TRACE=api ff --target=hello
-I0226 19:30:20.467  45696/140704384082176 main.py:22] ------------ Start: grpc 1.78.0
+I0226 19:30:20.467  45696/140704384082176 main.py:22] ------------ Start: grpc 1.78.1
 I0226 19:30:20.473  45696/140704384082176 main.py:27] ------------ Created the channel
 
 
@@ -39,14 +39,14 @@ I0226 19:30:24.020  45702/123145353273344 main.py:68] ------------ Invoking hell
 I0226 19:30:24.021  45702/123145353273344 main.py:70] ------------ Response: OK, message: "Hello, you!"
 ```
 
-## grpcio==1.78.0 fork ON, initial call
+## grpcio==1.78.1 fork ON, initial call
 
 **Result: ValueError('Cannot invoke RPC on closed channel!')**
 
 
 ```log
 $ TEST_INITIAL_CALL=1 GRPC_ENABLE_FORK_SUPPORT=1 GRPC_TRACE=api ff --target=hello
-I0226 19:29:56.799  45554/140704384082176 main.py:22] ------------ Start: grpc 1.78.0
+I0226 19:29:56.799  45554/140704384082176 main.py:22] ------------ Start: grpc 1.78.1
 I0226 19:29:56.809  45554/140704384082176 main.py:27] ------------ Created the channel
 
 
@@ -70,13 +70,13 @@ I0226 19:30:01.931  45555/123145597235200 main.py:68] ------------ Invoking hell
 I0226 19:30:01.931  45555/123145597235200 main.py:70] ------------ Response: Other error: ValueError('Cannot invoke RPC on closed channel!')
 ```
 
-## grpcio==1.78.0 fork UNSET, initial call
+## grpcio==1.78.1 fork UNSET, initial call
 
 **Result: WAI**
 
 ```log
 $ TEST_INITIAL_CALL=1 GRPC_TRACE=api ff --target=hello
-I0226 19:27:41.289  44791/140704384082176 main.py:22] ------------ Start: grpc 1.78.0
+I0226 19:27:41.289  44791/140704384082176 main.py:22] ------------ Start: grpc 1.78.1
 I0226 19:27:41.294  44791/140704384082176 main.py:27] ------------ Created the channel
 
 
@@ -100,14 +100,14 @@ I0226 19:27:50.995  44792/123145517871104 main.py:68] ------------ Invoking hell
 I0226 19:27:50.996  44792/123145517871104 main.py:70] ------------ Response: OK, message: "Hello, you!"
 ```
 
-## grpcio==1.78.0 fork OFF
+## grpcio==1.78.1 fork OFF
 
 **Result: Hang**
 
 
 ```log
 $ GRPC_ENABLE_FORK_SUPPORT=0 GRPC_TRACE=api ff --target=hello
-I0226 19:32:48.210  46121/140704384082176 main.py:22] ------------ Start: grpc 1.78.0
+I0226 19:32:48.210  46121/140704384082176 main.py:22] ------------ Start: grpc 1.78.1
 I0226 19:32:48.215  46121/140704384082176 main.py:27] ------------ Created the channel
 
 
@@ -122,13 +122,13 @@ I0226 19:32:52.417  46123/123145536507904 main.py:68] ------------ Invoking hell
 ```
 
 
-## grpcio==1.78.0 fork ON
+## grpcio==1.78.1 fork ON
 
 **Result: ValueError('Cannot invoke RPC on closed channel!')**
 
 ```log
 $ GRPC_ENABLE_FORK_SUPPORT=1 GRPC_TRACE=api ff --target=hello
-I0226 19:33:33.627  46287/140704384082176 main.py:22] ------------ Start: grpc 1.78.0
+I0226 19:33:33.627  46287/140704384082176 main.py:22] ------------ Start: grpc 1.78.1
 I0226 19:33:33.633  46287/140704384082176 main.py:27] ------------ Created the channel
 
 
@@ -146,13 +146,13 @@ I0226 19:33:38.771  46288/123145578975232 main.py:68] ------------ Invoking hell
 I0226 19:33:38.771  46288/123145578975232 main.py:70] ------------ Response: Other error: ValueError('Cannot invoke RPC on closed channel!')
 ```
 
-## grpcio==1.78.0 fork UNSET
+## grpcio==1.78.1 fork UNSET
 
 **Result: Hang**
 
 ```log
 $ GRPC_TRACE=api ff --target=hello
-I0226 19:34:21.595  46519/140704384082176 main.py:22] ------------ Start: grpc 1.78.0
+I0226 19:34:21.595  46519/140704384082176 main.py:22] ------------ Start: grpc 1.78.1
 I0226 19:34:21.599  46519/140704384082176 main.py:27] ------------ Created the channel
 
 
