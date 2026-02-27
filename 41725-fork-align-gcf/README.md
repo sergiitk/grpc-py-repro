@@ -18,6 +18,16 @@
 
 \* w/init means issuing initial call on the channel in the main process before forking
 
+### System
+
+```sh
+$ sw_vers
+ProductName:		macOS
+ProductVersion:		15.7.4
+BuildVersion:		24G517
+$ python -VV
+Python 3.12.12 (main, Oct 11 2025, 02:03:32) [Clang 17.0.0 (clang-1700.3.19.1)]
+```
 
 ## Running
 
