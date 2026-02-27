@@ -4,7 +4,7 @@
 * https://github.com/googlecloudplatform/functions-framework-python
 * [Support gRPC Python client-side fork with epoll1 by ericgribkoff · Pull Request #16264 · grpc/grpc](https://github.com/grpc/grpc/pull/16264)
 
-### Running
+## Running
 
 ```sh
 uv sync
@@ -35,3 +35,16 @@ More examples for different test cases in:
 
 - https://github.com/sergiitk/grpc-py-repro/blob/main/41725-fork-align-gcf/NOTES-1.78.0.md
 - https://github.com/sergiitk/grpc-py-repro/blob/main/41725-fork-align-gcf/NOTES-1.78.1.md
+
+
+## Results
+
+|                    | fork OFF | fork ON        | fork UNSET |
+|--------------------|----------|----------------|------------|
+| grpc 1.78.0        | Hang     | closed channel | WAI        |
+| grpc 1.78.1        | Hang     | closed channel | Hang       |
+| grpc 1.78.0 w/init | WAI      | closed channel | Almost WAI |
+| grpc 1.78.1 w/init | WAI      | closed channel | WAI        |
+
+
+\* w/init means issuing initial call on the channel in the main process before forking
