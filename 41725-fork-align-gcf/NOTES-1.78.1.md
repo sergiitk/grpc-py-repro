@@ -1,5 +1,7 @@
 # figuring things out 1.78.0
 
+> Note: GRPC_TRACE=api seem to be broken
+
 * [\[Python\] grpcio==1.78.1 in python fails with certain googleapis like secrets manager, pubsub, bigquery, workflows (through its sdk) from Cloud Run Functions · Issue #41725 · grpc/grpc](https://github.com/grpc/grpc/issues/41725)
 * https://github.com/googlecloudplatform/functions-framework-python
 * [Support gRPC Python client-side fork with epoll1 by ericgribkoff · Pull Request #16264 · grpc/grpc](https://github.com/grpc/grpc/pull/16264)
