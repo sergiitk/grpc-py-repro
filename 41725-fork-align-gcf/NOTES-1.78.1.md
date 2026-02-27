@@ -8,6 +8,9 @@
 ### debugging
 * https://github.com/grpc/grpc/blob/master/doc/trace_flags.md
 
+> Note: GRPC_TRACE=api seem to be broken \
+> Fixed with `export GRPC_PYTHON_DISABLE_ABSL_INIT_LOG=1`
+
 ## grpcio==1.78.1 fork OFF
 
 **Result: Hang**
@@ -160,10 +163,7 @@ I0000 00:00:1772169773.196049 3702963 completion_queue.cc:992] grpc_completion_q
 ---
 
 
-## grpcio==1.78.1 fork off, initial call
-
-> Note: GRPC_TRACE=api seem to be broken \
-> Fixed with `export GRPC_PYTHON_DISABLE_ABSL_INIT_LOG=1`
+## grpcio==1.78.1 fork OFF, initial call
 
 **Result: WAI**
 

@@ -377,9 +377,7 @@ I0226 19:41:10.728  47634/123145608507392 main.py:84] ------------ Response: Oth
 
 ## grpcio==1.78.0 fork UNSET, initial call
 
-**Result: Almost WAI**
-
-The first RPC issued in a forked proccess returns UNAVAILABLE, the following OK. 
+**Result: Almost WAI**: The first RPC issued in a forked proccess returns UNAVAILABLE, the following OK.
 
 ```log
 $ TEST_INITIAL_CALL=1 GRPC_TRACE=api ff --target=hello
