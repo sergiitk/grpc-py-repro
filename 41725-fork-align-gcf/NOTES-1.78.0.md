@@ -349,8 +349,6 @@ I0226 19:41:55.505  47808/123145549209600 main.py:84] ------------ Response: OK,
 
 
 ```log
-$ UNAVAILABLE
-zsh: command not found: UNAVAILABLE
 $ GRPC_ENABLE_FORK_SUPPORT=0 GRPC_TRACE=api ff --target=hello
 I0226 19:43:12.306  48087/140704384082176 main.py:36] ------------ Start: grpc 1.78.0
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
