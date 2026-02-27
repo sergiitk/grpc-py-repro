@@ -7,6 +7,184 @@
 ### debugging
 * https://github.com/grpc/grpc/blob/master/doc/trace_flags.md
 
+## grpcio==1.78.0 fork OFF
+
+**Result: Hang**
+
+
+```log
+$ GRPC_ENABLE_FORK_SUPPORT=0 GRPC_TRACE=api ff --target=hello
+I0226 19:43:12.306  48087/140704384082176 main.py:36] ------------ Start: grpc 1.78.0
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1772163792.310573 3540995 trace.cc:91] gRPC Tracers: api
+I0000 00:00:1772163792.310681 3540995 init.cc:132] grpc_init(void)
+I0000 00:00:1772163792.310732 3540995 completion_queue.cc:574] grpc_completion_queue_create_internal(completion_type=0, polling_type=0)
+I0000 00:00:1772163792.310754 3540995 completion_queue.cc:574] grpc_completion_queue_create_internal(completion_type=0, polling_type=0)
+I0000 00:00:1772163792.310766 3540995 channel_create.cc:249] grpc_channel_create(target=localhost:50051, creds=0x6000019151b0, args=0x1089326e0)
+I0000 00:00:1772163792.311440 3540995 init.cc:132] grpc_init(void)
+I0000 00:00:1772163792.311452 3540995 transport_credentials.cc:33] grpc_channel_credentials_release(creds=0x6000019151b0)
+I0000 00:00:1772163792.311489 3540995 channel.cc:120] grpc_channel_register_call(channel=0x600002908000, method=/helloworld.Greeter/SayHello, host=(null), reserved=0x0)
+I0000 00:00:1772163792.311522 3540995 channel.cc:120] grpc_channel_register_call(channel=0x600002908000, method=/helloworld.Greeter/SayHelloStreamReply, host=(null), reserved=0x0)
+I0000 00:00:1772163792.311540 3540995 channel.cc:120] grpc_channel_register_call(channel=0x600002908000, method=/helloworld.Greeter/SayHelloBidiStream, host=(null), reserved=0x0)
+I0226 19:43:12.311  48087/140704384082176 main.py:41] ------------ Created the channel
+
+
+
+I0226 19:43:12.311  48087/140704384082176 main.py:62] ------------ Initialized the function
+D0226 19:43:12.857  48087/123145553633280 selector_events.py:64] Using selector: KqueueSelector
+
+
+I0226 19:43:15.869  48088/123145570422784 main.py:82] ------------ Invoking hello()
+I0000 00:00:1772163795.870660 3541064 completion_queue.cc:574] grpc_completion_queue_create_internal(completion_type=0, polling_type=0)
+I0000 00:00:1772163795.870800 3541064 channel.cc:134] grpc_channel_create_registered_call(channel=0x600002908000, parent_call=0x0, propagation_mask=65535, completion_queue=0x7fc293d36de0, registered_call_handle=0x600002a1c550, deadline=gpr_timespec { tv_sec: 1772163800, tv_nsec: 870137088, clock_type: 1 }, reserved=0x0)
+I0000 00:00:1772163795.871138 3541064 metadata_array.cc:27] grpc_metadata_array_init(array=0x108a86458)
+I0000 00:00:1772163795.871151 3541064 metadata_array.cc:27] grpc_metadata_array_init(array=0x1089aedb0)
+I0000 00:00:1772163795.871157 3541064 call.cc:501] grpc_call_start_batch(call=0x7fc295822420, ops=0x7fc293d36fd0, nops=6, tag=0x108a7f740, reserved=0x0)
+I0000 00:00:1772163795.871170 3541064 filter_stack_call.cc:769] ops[0]: SEND_INITIAL_METADATA(nil)
+I0000 00:00:1772163795.871182 3541064 filter_stack_call.cc:769] ops[1]: SEND_MESSAGE ptr=0x7fc293d371b0
+I0000 00:00:1772163795.871190 3541064 filter_stack_call.cc:769] ops[2]: SEND_CLOSE_FROM_CLIENT
+I0000 00:00:1772163795.871194 3541064 filter_stack_call.cc:769] ops[3]: RECV_INITIAL_METADATA ptr=0x108a86458
+I0000 00:00:1772163795.871197 3541064 filter_stack_call.cc:769] ops[4]: RECV_MESSAGE ptr=0x108a51720
+I0000 00:00:1772163795.871201 3541064 filter_stack_call.cc:769] ops[5]: RECV_STATUS_ON_CLIENT metadata=0x1089aedb0 status=0x1089aedc8 details=0x1089aedd0
+I0000 00:00:1772163795.871385 3541064 completion_queue.cc:992] grpc_completion_queue_next(cq=0x7fc293d36de0, deadline=gpr_timespec { tv_sec: 1772163796, tv_nsec: 71382000, clock_type: 1 }, reserved=0x0)
+I0000 00:00:1772163796.073479 3541064 completion_queue.cc:992] grpc_completion_queue_next(cq=0x7fc293d36de0, deadline=gpr_timespec { tv_sec: 1772163796, tv_nsec: 273476000, clock_type: 1 }, reserved=0x0)
+I0000 00:00:1772163796.275611 3541064 completion_queue.cc:992] grpc_completion_queue_next(cq=0x7fc293d36de0, deadline=gpr_timespec { tv_sec: 1772163796, tv_nsec: 475610000, clock_type: 1 }, reserved=0x0)
+...
+
+> HANG
+```
+
+
+## grpcio==1.78.0 fork ON
+
+**Result: ValueError('Cannot invoke RPC on closed channel!')**
+
+```log
+$ GRPC_ENABLE_FORK_SUPPORT=1 GRPC_TRACE=api ff --target=hello
+I0226 19:45:07.742  48458/140704384082176 main.py:36] ------------ Start: grpc 1.78.0
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1772163907.747778 3543919 trace.cc:91] gRPC Tracers: api
+I0000 00:00:1772163907.748902 3543919 init.cc:132] grpc_init(void)
+I0000 00:00:1772163907.748948 3543919 completion_queue.cc:574] grpc_completion_queue_create_internal(completion_type=0, polling_type=0)
+I0000 00:00:1772163907.748971 3543919 completion_queue.cc:574] grpc_completion_queue_create_internal(completion_type=0, polling_type=0)
+I0000 00:00:1772163907.748986 3543919 channel_create.cc:249] grpc_channel_create(target=localhost:50051, creds=0x6000015e00e0, args=0x1039aa780)
+I0000 00:00:1772163907.751158 3543919 init.cc:132] grpc_init(void)
+I0000 00:00:1772163907.751507 3543919 transport_credentials.cc:33] grpc_channel_credentials_release(creds=0x6000015e00e0)
+I0000 00:00:1772163907.751563 3543919 channel.cc:120] grpc_channel_register_call(channel=0x6000025fc120, method=/helloworld.Greeter/SayHello, host=(null), reserved=0x0)
+I0000 00:00:1772163907.751601 3543919 channel.cc:120] grpc_channel_register_call(channel=0x6000025fc120, method=/helloworld.Greeter/SayHelloStreamReply, host=(null), reserved=0x0)
+I0000 00:00:1772163907.751624 3543919 channel.cc:120] grpc_channel_register_call(channel=0x6000025fc120, method=/helloworld.Greeter/SayHelloBidiStream, host=(null), reserved=0x0)
+I0226 19:45:07.751  48458/140704384082176 main.py:41] ------------ Created the channel
+
+
+
+I0226 19:45:07.751  48458/140704384082176 main.py:62] ------------ Initialized the function
+D0226 19:45:08.311  48458/123145463681024 selector_events.py:64] Using selector: KqueueSelector
+I0000 00:00:1772163908.319644 3543919 completion_queue.cc:1420] grpc_completion_queue_shutdown(cq=0x7fc8c24c7f60)
+I0000 00:00:1772163908.319771 3543919 completion_queue.cc:1426] grpc_completion_queue_destroy(cq=0x7fc8c24c7f60)
+I0000 00:00:1772163908.319779 3543919 completion_queue.cc:1420] grpc_completion_queue_shutdown(cq=0x7fc8c24c7f60)
+I0000 00:00:1772163908.319785 3543919 completion_queue.cc:1420] grpc_completion_queue_shutdown(cq=0x7fc8c24bccf0)
+I0000 00:00:1772163908.319795 3543919 completion_queue.cc:1426] grpc_completion_queue_destroy(cq=0x7fc8c24bccf0)
+I0000 00:00:1772163908.319801 3543919 completion_queue.cc:1420] grpc_completion_queue_shutdown(cq=0x7fc8c24bccf0)
+I0000 00:00:1772163908.319811 3543919 channel.cc:95] grpc_channel_destroy(channel=0x6000025fc120)
+I0000 00:00:1772163908.319944 3543919 init.cc:166] grpc_shutdown(void)
+I0000 00:00:1772163908.320151 3543964 init.cc:166] grpc_shutdown(void)
+I0000 00:00:1772163908.320245 3543975 init.cc:154] grpc_shutdown_from_cleanup_thread
+
+
+I0226 19:45:10.463  48459/123145480470528 main.py:82] ------------ Invoking hello()
+I0226 19:45:10.465  48459/123145480470528 main.py:84] ------------ Response: Other error: ValueError('Cannot invoke RPC on closed channel!')
+
+
+
+I0226 19:45:12.845  48459/123145480470528 main.py:82] ------------ Invoking hello()
+I0226 19:45:12.845  48459/123145480470528 main.py:84] ------------ Response: Other error: ValueError('Cannot invoke RPC on closed channel!')
+```
+
+## grpcio==1.78.0 fork UNSET
+
+**Result: WAI**
+
+```log
+$ GRPC_TRACE=api ff --target=hello
+I0226 19:45:40.942  48629/140704384082176 main.py:36] ------------ Start: grpc 1.78.0
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1772163940.946606 3544765 trace.cc:91] gRPC Tracers: api
+I0000 00:00:1772163940.946739 3544765 init.cc:132] grpc_init(void)
+I0000 00:00:1772163940.946765 3544765 completion_queue.cc:574] grpc_completion_queue_create_internal(completion_type=0, polling_type=0)
+I0000 00:00:1772163940.946789 3544765 completion_queue.cc:574] grpc_completion_queue_create_internal(completion_type=0, polling_type=0)
+I0000 00:00:1772163940.946802 3544765 channel_create.cc:249] grpc_channel_create(target=localhost:50051, creds=0x600003d70090, args=0x102fd26e0)
+I0000 00:00:1772163940.947435 3544765 init.cc:132] grpc_init(void)
+I0000 00:00:1772163940.947452 3544765 transport_credentials.cc:33] grpc_channel_credentials_release(creds=0x600003d70090)
+I0000 00:00:1772163940.947495 3544765 channel.cc:120] grpc_channel_register_call(channel=0x600000d6c000, method=/helloworld.Greeter/SayHello, host=(null), reserved=0x0)
+I0000 00:00:1772163940.947532 3544765 channel.cc:120] grpc_channel_register_call(channel=0x600000d6c000, method=/helloworld.Greeter/SayHelloStreamReply, host=(null), reserved=0x0)
+I0000 00:00:1772163940.947556 3544765 channel.cc:120] grpc_channel_register_call(channel=0x600000d6c000, method=/helloworld.Greeter/SayHelloBidiStream, host=(null), reserved=0x0)
+I0226 19:45:40.947  48629/140704384082176 main.py:41] ------------ Created the channel
+
+
+
+I0226 19:45:40.947  48629/140704384082176 main.py:62] ------------ Initialized the function
+D0226 19:45:41.495  48629/123145455296512 selector_events.py:64] Using selector: KqueueSelector
+
+
+I0226 19:45:44.848  48633/123145472086016 main.py:82] ------------ Invoking hello()
+I0000 00:00:1772163944.849877 3544904 completion_queue.cc:574] grpc_completion_queue_create_internal(completion_type=0, polling_type=0)
+I0000 00:00:1772163944.849995 3544904 channel.cc:134] grpc_channel_create_registered_call(channel=0x600000d6c000, parent_call=0x0, propagation_mask=65535, completion_queue=0x7fbf8bd16710, registered_call_handle=0x600000e7c410, deadline=gpr_timespec { tv_sec: 1772163949, tv_nsec: 849474048, clock_type: 1 }, reserved=0x0)
+I0000 00:00:1772163944.850703 3544904 metadata_array.cc:27] grpc_metadata_array_init(array=0x10311e458)
+I0000 00:00:1772163944.850725 3544904 metadata_array.cc:27] grpc_metadata_array_init(array=0x10304adb0)
+I0000 00:00:1772163944.850732 3544904 call.cc:501] grpc_call_start_batch(call=0x7fbf8708cc20, ops=0x7fbf87b74c90, nops=6, tag=0x1031176f0, reserved=0x0)
+I0000 00:00:1772163944.850762 3544904 filter_stack_call.cc:769] ops[0]: SEND_INITIAL_METADATA(nil)
+I0000 00:00:1772163944.850775 3544904 filter_stack_call.cc:769] ops[1]: SEND_MESSAGE ptr=0x7fbf87bb3170
+I0000 00:00:1772163944.850785 3544904 filter_stack_call.cc:769] ops[2]: SEND_CLOSE_FROM_CLIENT
+I0000 00:00:1772163944.850789 3544904 filter_stack_call.cc:769] ops[3]: RECV_INITIAL_METADATA ptr=0x10311e458
+I0000 00:00:1772163944.850793 3544904 filter_stack_call.cc:769] ops[4]: RECV_MESSAGE ptr=0x1030ed720
+I0000 00:00:1772163944.850797 3544904 filter_stack_call.cc:769] ops[5]: RECV_STATUS_ON_CLIENT metadata=0x10304adb0 status=0x10304adc8 details=0x10304add0
+I0000 00:00:1772163944.851012 3544904 completion_queue.cc:992] grpc_completion_queue_next(cq=0x7fbf8bd16710, deadline=gpr_timespec { tv_sec: 1772163945, tv_nsec: 51008000, clock_type: 1 }, reserved=0x0)
+I0000 00:00:1772163944.854855 3544827 init.cc:132] grpc_init(void)
+I0000 00:00:1772163944.855016 3544827 init.cc:132] grpc_init(void)
+I0000 00:00:1772163944.855526 3544830 auth_context.cc:181] grpc_auth_context_add_cstring_property(ctx=0x7fbf86fda510, name=transport_security_type, value=insecure)
+I0000 00:00:1772163944.855588 3544830 auth_context.cc:161] grpc_auth_context_add_property(ctx=0x7fbf86fda510, name=security_level, value=TSI_SECURITY_NONE, value_length=17)
+I0000 00:00:1772163944.855604 3544830 auth_context.cc:115] grpc_auth_context_find_properties_by_name(ctx=0x7fbf86fda510, name=security_level)
+I0000 00:00:1772163944.855613 3544830 auth_context.cc:88] grpc_auth_property_iterator_next(it=0x700007d47a60)
+I0000 00:00:1772163944.856056 3544833 init.cc:132] grpc_init(void)
+I0000 00:00:1772163944.856521 3544834 init.cc:166] grpc_shutdown(void)
+I0000 00:00:1772163944.857314 3544904 completion_queue.cc:762] cq_end_op_for_next(cq=0x7fbf8bd16710, tag=0x1031176f0, error=OK, done=true, done_arg=0x7fbf87b9d2c0, storage=0x7fbf87b9d308)
+I0000 00:00:1772163944.857375 3544904 completion_queue.cc:1101] RETURN_EVENT[0x7fbf8bd16710]: OP_COMPLETE: tag:0x1031176f0 OK
+I0000 00:00:1772163944.857431 3544904 metadata_array.cc:33] grpc_metadata_array_destroy(array=0x10311e458)
+I0000 00:00:1772163944.857446 3544904 metadata_array.cc:33] grpc_metadata_array_destroy(array=0x10304adb0)
+I0000 00:00:1772163944.857471 3544904 filter_stack_call.cc:265] grpc_call_unref(c=0x7fbf8708cc20)
+I0000 00:00:1772163944.857508 3544904 completion_queue.cc:1420] grpc_completion_queue_shutdown(cq=0x7fbf8bd16710)
+I0000 00:00:1772163944.857514 3544904 completion_queue.cc:1426] grpc_completion_queue_destroy(cq=0x7fbf8bd16710)
+I0000 00:00:1772163944.857518 3544904 completion_queue.cc:1420] grpc_completion_queue_shutdown(cq=0x7fbf8bd16710)
+I0226 19:45:44.857  48633/123145472086016 main.py:84] ------------ Response: OK, message: "Hello, you!"
+
+
+
+I0226 19:45:47.506  48633/123145472086016 main.py:82] ------------ Invoking hello()
+I0000 00:00:1772163947.507413 3544904 completion_queue.cc:574] grpc_completion_queue_create_internal(completion_type=0, polling_type=0)
+I0000 00:00:1772163947.507448 3544904 channel.cc:134] grpc_channel_create_registered_call(channel=0x600000d6c000, parent_call=0x0, propagation_mask=65535, completion_queue=0x7fbf8bd16710, registered_call_handle=0x600000e7c410, deadline=gpr_timespec { tv_sec: 1772163952, tv_nsec: 507342080, clock_type: 1 }, reserved=0x0)
+I0000 00:00:1772163947.507504 3544904 metadata_array.cc:27] grpc_metadata_array_init(array=0x10311e638)
+I0000 00:00:1772163947.507512 3544904 metadata_array.cc:27] grpc_metadata_array_init(array=0x10304aea0)
+I0000 00:00:1772163947.507516 3544904 call.cc:501] grpc_call_start_batch(call=0x7fbf870944d0, ops=0x7fbf86f053c0, nops=6, tag=0x10312ca90, reserved=0x0)
+I0000 00:00:1772163947.507522 3544904 filter_stack_call.cc:769] ops[0]: SEND_INITIAL_METADATA(nil)
+I0000 00:00:1772163947.507528 3544904 filter_stack_call.cc:769] ops[1]: SEND_MESSAGE ptr=0x7fbf8bd0a5e0
+I0000 00:00:1772163947.507533 3544904 filter_stack_call.cc:769] ops[2]: SEND_CLOSE_FROM_CLIENT
+I0000 00:00:1772163947.507536 3544904 filter_stack_call.cc:769] ops[3]: RECV_INITIAL_METADATA ptr=0x10311e638
+I0000 00:00:1772163947.507541 3544904 filter_stack_call.cc:769] ops[4]: RECV_MESSAGE ptr=0x1030ed8a0
+I0000 00:00:1772163947.507544 3544904 filter_stack_call.cc:769] ops[5]: RECV_STATUS_ON_CLIENT metadata=0x10304aea0 status=0x10304aeb8 details=0x10304aec0
+I0000 00:00:1772163947.507690 3544904 completion_queue.cc:992] grpc_completion_queue_next(cq=0x7fbf8bd16710, deadline=gpr_timespec { tv_sec: 1772163947, tv_nsec: 707689000, clock_type: 1 }, reserved=0x0)
+I0000 00:00:1772163947.508206 3544904 completion_queue.cc:762] cq_end_op_for_next(cq=0x7fbf8bd16710, tag=0x10312ca90, error=OK, done=true, done_arg=0x7fbf870954a0, storage=0x7fbf870954e8)
+I0000 00:00:1772163947.508255 3544904 completion_queue.cc:1101] RETURN_EVENT[0x7fbf8bd16710]: OP_COMPLETE: tag:0x10312ca90 OK
+I0000 00:00:1772163947.508274 3544904 metadata_array.cc:33] grpc_metadata_array_destroy(array=0x10311e638)
+I0000 00:00:1772163947.508284 3544904 metadata_array.cc:33] grpc_metadata_array_destroy(array=0x10304aea0)
+I0000 00:00:1772163947.508295 3544904 filter_stack_call.cc:265] grpc_call_unref(c=0x7fbf870944d0)
+I0000 00:00:1772163947.508312 3544904 completion_queue.cc:1420] grpc_completion_queue_shutdown(cq=0x7fbf8bd16710)
+I0000 00:00:1772163947.508317 3544904 completion_queue.cc:1426] grpc_completion_queue_destroy(cq=0x7fbf8bd16710)
+I0000 00:00:1772163947.508320 3544904 completion_queue.cc:1420] grpc_completion_queue_shutdown(cq=0x7fbf8bd16710)
+I0226 19:45:47.508  48633/123145472086016 main.py:84] ------------ Response: OK, message: "Hello, you!"
+```
+
+---
+
 ## grpcio==1.78.0 fork OFF, initial call
 
 **Result: WAI**
@@ -341,180 +519,4 @@ I0000 00:00:1772163715.505542 3539275 completion_queue.cc:1420] grpc_completion_
 I0000 00:00:1772163715.505547 3539275 completion_queue.cc:1426] grpc_completion_queue_destroy(cq=0x7f8973e9ba70)
 I0000 00:00:1772163715.505550 3539275 completion_queue.cc:1420] grpc_completion_queue_shutdown(cq=0x7f8973e9ba70)
 I0226 19:41:55.505  47808/123145549209600 main.py:84] ------------ Response: OK, message: "Hello, you!"
-```
-
-## grpcio==1.78.0 fork OFF
-
-**Result: Hang**
-
-
-```log
-$ GRPC_ENABLE_FORK_SUPPORT=0 GRPC_TRACE=api ff --target=hello
-I0226 19:43:12.306  48087/140704384082176 main.py:36] ------------ Start: grpc 1.78.0
-WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1772163792.310573 3540995 trace.cc:91] gRPC Tracers: api
-I0000 00:00:1772163792.310681 3540995 init.cc:132] grpc_init(void)
-I0000 00:00:1772163792.310732 3540995 completion_queue.cc:574] grpc_completion_queue_create_internal(completion_type=0, polling_type=0)
-I0000 00:00:1772163792.310754 3540995 completion_queue.cc:574] grpc_completion_queue_create_internal(completion_type=0, polling_type=0)
-I0000 00:00:1772163792.310766 3540995 channel_create.cc:249] grpc_channel_create(target=localhost:50051, creds=0x6000019151b0, args=0x1089326e0)
-I0000 00:00:1772163792.311440 3540995 init.cc:132] grpc_init(void)
-I0000 00:00:1772163792.311452 3540995 transport_credentials.cc:33] grpc_channel_credentials_release(creds=0x6000019151b0)
-I0000 00:00:1772163792.311489 3540995 channel.cc:120] grpc_channel_register_call(channel=0x600002908000, method=/helloworld.Greeter/SayHello, host=(null), reserved=0x0)
-I0000 00:00:1772163792.311522 3540995 channel.cc:120] grpc_channel_register_call(channel=0x600002908000, method=/helloworld.Greeter/SayHelloStreamReply, host=(null), reserved=0x0)
-I0000 00:00:1772163792.311540 3540995 channel.cc:120] grpc_channel_register_call(channel=0x600002908000, method=/helloworld.Greeter/SayHelloBidiStream, host=(null), reserved=0x0)
-I0226 19:43:12.311  48087/140704384082176 main.py:41] ------------ Created the channel
-
-
-
-I0226 19:43:12.311  48087/140704384082176 main.py:62] ------------ Initialized the function
-D0226 19:43:12.857  48087/123145553633280 selector_events.py:64] Using selector: KqueueSelector
-
-
-I0226 19:43:15.869  48088/123145570422784 main.py:82] ------------ Invoking hello()
-I0000 00:00:1772163795.870660 3541064 completion_queue.cc:574] grpc_completion_queue_create_internal(completion_type=0, polling_type=0)
-I0000 00:00:1772163795.870800 3541064 channel.cc:134] grpc_channel_create_registered_call(channel=0x600002908000, parent_call=0x0, propagation_mask=65535, completion_queue=0x7fc293d36de0, registered_call_handle=0x600002a1c550, deadline=gpr_timespec { tv_sec: 1772163800, tv_nsec: 870137088, clock_type: 1 }, reserved=0x0)
-I0000 00:00:1772163795.871138 3541064 metadata_array.cc:27] grpc_metadata_array_init(array=0x108a86458)
-I0000 00:00:1772163795.871151 3541064 metadata_array.cc:27] grpc_metadata_array_init(array=0x1089aedb0)
-I0000 00:00:1772163795.871157 3541064 call.cc:501] grpc_call_start_batch(call=0x7fc295822420, ops=0x7fc293d36fd0, nops=6, tag=0x108a7f740, reserved=0x0)
-I0000 00:00:1772163795.871170 3541064 filter_stack_call.cc:769] ops[0]: SEND_INITIAL_METADATA(nil)
-I0000 00:00:1772163795.871182 3541064 filter_stack_call.cc:769] ops[1]: SEND_MESSAGE ptr=0x7fc293d371b0
-I0000 00:00:1772163795.871190 3541064 filter_stack_call.cc:769] ops[2]: SEND_CLOSE_FROM_CLIENT
-I0000 00:00:1772163795.871194 3541064 filter_stack_call.cc:769] ops[3]: RECV_INITIAL_METADATA ptr=0x108a86458
-I0000 00:00:1772163795.871197 3541064 filter_stack_call.cc:769] ops[4]: RECV_MESSAGE ptr=0x108a51720
-I0000 00:00:1772163795.871201 3541064 filter_stack_call.cc:769] ops[5]: RECV_STATUS_ON_CLIENT metadata=0x1089aedb0 status=0x1089aedc8 details=0x1089aedd0
-I0000 00:00:1772163795.871385 3541064 completion_queue.cc:992] grpc_completion_queue_next(cq=0x7fc293d36de0, deadline=gpr_timespec { tv_sec: 1772163796, tv_nsec: 71382000, clock_type: 1 }, reserved=0x0)
-I0000 00:00:1772163796.073479 3541064 completion_queue.cc:992] grpc_completion_queue_next(cq=0x7fc293d36de0, deadline=gpr_timespec { tv_sec: 1772163796, tv_nsec: 273476000, clock_type: 1 }, reserved=0x0)
-I0000 00:00:1772163796.275611 3541064 completion_queue.cc:992] grpc_completion_queue_next(cq=0x7fc293d36de0, deadline=gpr_timespec { tv_sec: 1772163796, tv_nsec: 475610000, clock_type: 1 }, reserved=0x0)
-...
-
-> HANG
-```
-
-
-## grpcio==1.78.0 fork ON
-
-**Result: ValueError('Cannot invoke RPC on closed channel!')**
-
-```log
-$ GRPC_ENABLE_FORK_SUPPORT=1 GRPC_TRACE=api ff --target=hello
-I0226 19:45:07.742  48458/140704384082176 main.py:36] ------------ Start: grpc 1.78.0
-WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1772163907.747778 3543919 trace.cc:91] gRPC Tracers: api
-I0000 00:00:1772163907.748902 3543919 init.cc:132] grpc_init(void)
-I0000 00:00:1772163907.748948 3543919 completion_queue.cc:574] grpc_completion_queue_create_internal(completion_type=0, polling_type=0)
-I0000 00:00:1772163907.748971 3543919 completion_queue.cc:574] grpc_completion_queue_create_internal(completion_type=0, polling_type=0)
-I0000 00:00:1772163907.748986 3543919 channel_create.cc:249] grpc_channel_create(target=localhost:50051, creds=0x6000015e00e0, args=0x1039aa780)
-I0000 00:00:1772163907.751158 3543919 init.cc:132] grpc_init(void)
-I0000 00:00:1772163907.751507 3543919 transport_credentials.cc:33] grpc_channel_credentials_release(creds=0x6000015e00e0)
-I0000 00:00:1772163907.751563 3543919 channel.cc:120] grpc_channel_register_call(channel=0x6000025fc120, method=/helloworld.Greeter/SayHello, host=(null), reserved=0x0)
-I0000 00:00:1772163907.751601 3543919 channel.cc:120] grpc_channel_register_call(channel=0x6000025fc120, method=/helloworld.Greeter/SayHelloStreamReply, host=(null), reserved=0x0)
-I0000 00:00:1772163907.751624 3543919 channel.cc:120] grpc_channel_register_call(channel=0x6000025fc120, method=/helloworld.Greeter/SayHelloBidiStream, host=(null), reserved=0x0)
-I0226 19:45:07.751  48458/140704384082176 main.py:41] ------------ Created the channel
-
-
-
-I0226 19:45:07.751  48458/140704384082176 main.py:62] ------------ Initialized the function
-D0226 19:45:08.311  48458/123145463681024 selector_events.py:64] Using selector: KqueueSelector
-I0000 00:00:1772163908.319644 3543919 completion_queue.cc:1420] grpc_completion_queue_shutdown(cq=0x7fc8c24c7f60)
-I0000 00:00:1772163908.319771 3543919 completion_queue.cc:1426] grpc_completion_queue_destroy(cq=0x7fc8c24c7f60)
-I0000 00:00:1772163908.319779 3543919 completion_queue.cc:1420] grpc_completion_queue_shutdown(cq=0x7fc8c24c7f60)
-I0000 00:00:1772163908.319785 3543919 completion_queue.cc:1420] grpc_completion_queue_shutdown(cq=0x7fc8c24bccf0)
-I0000 00:00:1772163908.319795 3543919 completion_queue.cc:1426] grpc_completion_queue_destroy(cq=0x7fc8c24bccf0)
-I0000 00:00:1772163908.319801 3543919 completion_queue.cc:1420] grpc_completion_queue_shutdown(cq=0x7fc8c24bccf0)
-I0000 00:00:1772163908.319811 3543919 channel.cc:95] grpc_channel_destroy(channel=0x6000025fc120)
-I0000 00:00:1772163908.319944 3543919 init.cc:166] grpc_shutdown(void)
-I0000 00:00:1772163908.320151 3543964 init.cc:166] grpc_shutdown(void)
-I0000 00:00:1772163908.320245 3543975 init.cc:154] grpc_shutdown_from_cleanup_thread
-
-
-I0226 19:45:10.463  48459/123145480470528 main.py:82] ------------ Invoking hello()
-I0226 19:45:10.465  48459/123145480470528 main.py:84] ------------ Response: Other error: ValueError('Cannot invoke RPC on closed channel!')
-
-
-
-I0226 19:45:12.845  48459/123145480470528 main.py:82] ------------ Invoking hello()
-I0226 19:45:12.845  48459/123145480470528 main.py:84] ------------ Response: Other error: ValueError('Cannot invoke RPC on closed channel!')
-```
-
-## grpcio==1.78.0 fork UNSET
-
-**Result: WAI**
-
-```log
-$ GRPC_TRACE=api ff --target=hello
-I0226 19:45:40.942  48629/140704384082176 main.py:36] ------------ Start: grpc 1.78.0
-WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1772163940.946606 3544765 trace.cc:91] gRPC Tracers: api
-I0000 00:00:1772163940.946739 3544765 init.cc:132] grpc_init(void)
-I0000 00:00:1772163940.946765 3544765 completion_queue.cc:574] grpc_completion_queue_create_internal(completion_type=0, polling_type=0)
-I0000 00:00:1772163940.946789 3544765 completion_queue.cc:574] grpc_completion_queue_create_internal(completion_type=0, polling_type=0)
-I0000 00:00:1772163940.946802 3544765 channel_create.cc:249] grpc_channel_create(target=localhost:50051, creds=0x600003d70090, args=0x102fd26e0)
-I0000 00:00:1772163940.947435 3544765 init.cc:132] grpc_init(void)
-I0000 00:00:1772163940.947452 3544765 transport_credentials.cc:33] grpc_channel_credentials_release(creds=0x600003d70090)
-I0000 00:00:1772163940.947495 3544765 channel.cc:120] grpc_channel_register_call(channel=0x600000d6c000, method=/helloworld.Greeter/SayHello, host=(null), reserved=0x0)
-I0000 00:00:1772163940.947532 3544765 channel.cc:120] grpc_channel_register_call(channel=0x600000d6c000, method=/helloworld.Greeter/SayHelloStreamReply, host=(null), reserved=0x0)
-I0000 00:00:1772163940.947556 3544765 channel.cc:120] grpc_channel_register_call(channel=0x600000d6c000, method=/helloworld.Greeter/SayHelloBidiStream, host=(null), reserved=0x0)
-I0226 19:45:40.947  48629/140704384082176 main.py:41] ------------ Created the channel
-
-
-
-I0226 19:45:40.947  48629/140704384082176 main.py:62] ------------ Initialized the function
-D0226 19:45:41.495  48629/123145455296512 selector_events.py:64] Using selector: KqueueSelector
-
-
-I0226 19:45:44.848  48633/123145472086016 main.py:82] ------------ Invoking hello()
-I0000 00:00:1772163944.849877 3544904 completion_queue.cc:574] grpc_completion_queue_create_internal(completion_type=0, polling_type=0)
-I0000 00:00:1772163944.849995 3544904 channel.cc:134] grpc_channel_create_registered_call(channel=0x600000d6c000, parent_call=0x0, propagation_mask=65535, completion_queue=0x7fbf8bd16710, registered_call_handle=0x600000e7c410, deadline=gpr_timespec { tv_sec: 1772163949, tv_nsec: 849474048, clock_type: 1 }, reserved=0x0)
-I0000 00:00:1772163944.850703 3544904 metadata_array.cc:27] grpc_metadata_array_init(array=0x10311e458)
-I0000 00:00:1772163944.850725 3544904 metadata_array.cc:27] grpc_metadata_array_init(array=0x10304adb0)
-I0000 00:00:1772163944.850732 3544904 call.cc:501] grpc_call_start_batch(call=0x7fbf8708cc20, ops=0x7fbf87b74c90, nops=6, tag=0x1031176f0, reserved=0x0)
-I0000 00:00:1772163944.850762 3544904 filter_stack_call.cc:769] ops[0]: SEND_INITIAL_METADATA(nil)
-I0000 00:00:1772163944.850775 3544904 filter_stack_call.cc:769] ops[1]: SEND_MESSAGE ptr=0x7fbf87bb3170
-I0000 00:00:1772163944.850785 3544904 filter_stack_call.cc:769] ops[2]: SEND_CLOSE_FROM_CLIENT
-I0000 00:00:1772163944.850789 3544904 filter_stack_call.cc:769] ops[3]: RECV_INITIAL_METADATA ptr=0x10311e458
-I0000 00:00:1772163944.850793 3544904 filter_stack_call.cc:769] ops[4]: RECV_MESSAGE ptr=0x1030ed720
-I0000 00:00:1772163944.850797 3544904 filter_stack_call.cc:769] ops[5]: RECV_STATUS_ON_CLIENT metadata=0x10304adb0 status=0x10304adc8 details=0x10304add0
-I0000 00:00:1772163944.851012 3544904 completion_queue.cc:992] grpc_completion_queue_next(cq=0x7fbf8bd16710, deadline=gpr_timespec { tv_sec: 1772163945, tv_nsec: 51008000, clock_type: 1 }, reserved=0x0)
-I0000 00:00:1772163944.854855 3544827 init.cc:132] grpc_init(void)
-I0000 00:00:1772163944.855016 3544827 init.cc:132] grpc_init(void)
-I0000 00:00:1772163944.855526 3544830 auth_context.cc:181] grpc_auth_context_add_cstring_property(ctx=0x7fbf86fda510, name=transport_security_type, value=insecure)
-I0000 00:00:1772163944.855588 3544830 auth_context.cc:161] grpc_auth_context_add_property(ctx=0x7fbf86fda510, name=security_level, value=TSI_SECURITY_NONE, value_length=17)
-I0000 00:00:1772163944.855604 3544830 auth_context.cc:115] grpc_auth_context_find_properties_by_name(ctx=0x7fbf86fda510, name=security_level)
-I0000 00:00:1772163944.855613 3544830 auth_context.cc:88] grpc_auth_property_iterator_next(it=0x700007d47a60)
-I0000 00:00:1772163944.856056 3544833 init.cc:132] grpc_init(void)
-I0000 00:00:1772163944.856521 3544834 init.cc:166] grpc_shutdown(void)
-I0000 00:00:1772163944.857314 3544904 completion_queue.cc:762] cq_end_op_for_next(cq=0x7fbf8bd16710, tag=0x1031176f0, error=OK, done=true, done_arg=0x7fbf87b9d2c0, storage=0x7fbf87b9d308)
-I0000 00:00:1772163944.857375 3544904 completion_queue.cc:1101] RETURN_EVENT[0x7fbf8bd16710]: OP_COMPLETE: tag:0x1031176f0 OK
-I0000 00:00:1772163944.857431 3544904 metadata_array.cc:33] grpc_metadata_array_destroy(array=0x10311e458)
-I0000 00:00:1772163944.857446 3544904 metadata_array.cc:33] grpc_metadata_array_destroy(array=0x10304adb0)
-I0000 00:00:1772163944.857471 3544904 filter_stack_call.cc:265] grpc_call_unref(c=0x7fbf8708cc20)
-I0000 00:00:1772163944.857508 3544904 completion_queue.cc:1420] grpc_completion_queue_shutdown(cq=0x7fbf8bd16710)
-I0000 00:00:1772163944.857514 3544904 completion_queue.cc:1426] grpc_completion_queue_destroy(cq=0x7fbf8bd16710)
-I0000 00:00:1772163944.857518 3544904 completion_queue.cc:1420] grpc_completion_queue_shutdown(cq=0x7fbf8bd16710)
-I0226 19:45:44.857  48633/123145472086016 main.py:84] ------------ Response: OK, message: "Hello, you!"
-
-
-
-I0226 19:45:47.506  48633/123145472086016 main.py:82] ------------ Invoking hello()
-I0000 00:00:1772163947.507413 3544904 completion_queue.cc:574] grpc_completion_queue_create_internal(completion_type=0, polling_type=0)
-I0000 00:00:1772163947.507448 3544904 channel.cc:134] grpc_channel_create_registered_call(channel=0x600000d6c000, parent_call=0x0, propagation_mask=65535, completion_queue=0x7fbf8bd16710, registered_call_handle=0x600000e7c410, deadline=gpr_timespec { tv_sec: 1772163952, tv_nsec: 507342080, clock_type: 1 }, reserved=0x0)
-I0000 00:00:1772163947.507504 3544904 metadata_array.cc:27] grpc_metadata_array_init(array=0x10311e638)
-I0000 00:00:1772163947.507512 3544904 metadata_array.cc:27] grpc_metadata_array_init(array=0x10304aea0)
-I0000 00:00:1772163947.507516 3544904 call.cc:501] grpc_call_start_batch(call=0x7fbf870944d0, ops=0x7fbf86f053c0, nops=6, tag=0x10312ca90, reserved=0x0)
-I0000 00:00:1772163947.507522 3544904 filter_stack_call.cc:769] ops[0]: SEND_INITIAL_METADATA(nil)
-I0000 00:00:1772163947.507528 3544904 filter_stack_call.cc:769] ops[1]: SEND_MESSAGE ptr=0x7fbf8bd0a5e0
-I0000 00:00:1772163947.507533 3544904 filter_stack_call.cc:769] ops[2]: SEND_CLOSE_FROM_CLIENT
-I0000 00:00:1772163947.507536 3544904 filter_stack_call.cc:769] ops[3]: RECV_INITIAL_METADATA ptr=0x10311e638
-I0000 00:00:1772163947.507541 3544904 filter_stack_call.cc:769] ops[4]: RECV_MESSAGE ptr=0x1030ed8a0
-I0000 00:00:1772163947.507544 3544904 filter_stack_call.cc:769] ops[5]: RECV_STATUS_ON_CLIENT metadata=0x10304aea0 status=0x10304aeb8 details=0x10304aec0
-I0000 00:00:1772163947.507690 3544904 completion_queue.cc:992] grpc_completion_queue_next(cq=0x7fbf8bd16710, deadline=gpr_timespec { tv_sec: 1772163947, tv_nsec: 707689000, clock_type: 1 }, reserved=0x0)
-I0000 00:00:1772163947.508206 3544904 completion_queue.cc:762] cq_end_op_for_next(cq=0x7fbf8bd16710, tag=0x10312ca90, error=OK, done=true, done_arg=0x7fbf870954a0, storage=0x7fbf870954e8)
-I0000 00:00:1772163947.508255 3544904 completion_queue.cc:1101] RETURN_EVENT[0x7fbf8bd16710]: OP_COMPLETE: tag:0x10312ca90 OK
-I0000 00:00:1772163947.508274 3544904 metadata_array.cc:33] grpc_metadata_array_destroy(array=0x10311e638)
-I0000 00:00:1772163947.508284 3544904 metadata_array.cc:33] grpc_metadata_array_destroy(array=0x10304aea0)
-I0000 00:00:1772163947.508295 3544904 filter_stack_call.cc:265] grpc_call_unref(c=0x7fbf870944d0)
-I0000 00:00:1772163947.508312 3544904 completion_queue.cc:1420] grpc_completion_queue_shutdown(cq=0x7fbf8bd16710)
-I0000 00:00:1772163947.508317 3544904 completion_queue.cc:1426] grpc_completion_queue_destroy(cq=0x7fbf8bd16710)
-I0000 00:00:1772163947.508320 3544904 completion_queue.cc:1420] grpc_completion_queue_shutdown(cq=0x7fbf8bd16710)
-I0226 19:45:47.508  48633/123145472086016 main.py:84] ------------ Response: OK, message: "Hello, you!"
 ```
