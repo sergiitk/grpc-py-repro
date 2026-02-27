@@ -10,7 +10,7 @@
 
 ## grpcio==1.78.1 fork off, initial call
 
-> Note: GRPC_TRACE=api seem to be broken
+> Note: GRPC_TRACE=api seem to be broken \
 > Fixed with `export GRPC_PYTHON_DISABLE_ABSL_INIT_LOG=1`
 
 **Result: WAI**
